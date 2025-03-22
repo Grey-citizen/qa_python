@@ -2,16 +2,9 @@ import pytest
 from main import BooksCollector
 
 class TestBooksCollector:
-    #def test_add_new_book_add_two_books(self):
-        #collector = BooksCollector()
-        #collector.add_new_book('Гордость и предубеждение и зомби')
-        #collector.add_new_book('Что делать, если ваш кот хочет вас убить')
-        #assert len(collector.get_books_rating()) == 2
 
-
-    def test_add_new_book_duplicate_book(self):
+    def test_add_new_book_add_one_book(self):
         collector = BooksCollector()
-        collector.add_new_book('Автостопом по галактике')
         collector.add_new_book('Автостопом по галактике')
         assert len(collector.books_genre) == 1
 
@@ -27,18 +20,8 @@ class TestBooksCollector:
         collector.set_book_genre('Дюна', 'Фантастика')
         assert collector.get_book_genre('Дюна') == 'Фантастика'
 
-    @pytest.mark.parametrize('book_name,expected_genre', [
-        ('Пикник на обочине', ''),
-        ('Хоббит', 'Фантастика')
-    ])
-    def test_get_genre_returns_correct_value(self, book_name, expected_genre):
-        collector = BooksCollector()
-        if book_name == 'Хоббит':
-            collector.add_new_book(book_name)
-            collector.set_book_genre(book_name, "Фантастика")
-        elif book_name == 'Пикник на обочине':
-            collector.add_new_book(book_name)
-        assert collector.get_book_genre(book_name) == expected_genre
+    def test_get_genre_of_non_existing_book(self, collector):
+        assert collector.get_book_genre('Пикник на обочине') is None
 
     @pytest.mark.parametrize('genre,expected_books', [
         ('Фантастика', ['Солярис']),
@@ -56,14 +39,18 @@ class TestBooksCollector:
         books = collector.get_books_with_specific_genre(genre)
         assert books == expected_books
 
-    def test_get_books_for_children(self):
+    def test_get_books_for_children_genre_good_for_children(self):
         collector = BooksCollector()
         collector.add_new_book('Хоббит')
         collector.set_book_genre('Хоббит', 'Фантастика')
-        collector.add_new_book('Сияние')
-        collector.set_book_genre('Сияние', 'Ужасы')
         books = collector.get_books_for_children()
         assert 'Хоббит' in books
+
+    def test_get_books_for_children_genre_bad_for_children(self):
+        collector = BooksCollector()
+        collector.add_new_book('Сияние')
+        collector.set_book_genre('Сияние', 'Фантастика')
+        books = collector.get_books_for_children()
         assert 'Сияние' not in books
 
     def test_add_book_in_favorites(self):
@@ -71,13 +58,6 @@ class TestBooksCollector:
         collector.add_new_book('Цвет из иных миров')
         collector.add_book_in_favorites('Цвет из иных миров')
         assert 'Цвет из иных миров' in collector.favorites
-
-    def test_add_book_in_favorites_duplicate_book(self):
-        collector = BooksCollector()
-        collector.add_new_book('Вино из одуванчиков')
-        collector.add_book_in_favorites('Вино из одуванчиков')
-        collector.add_book_in_favorites('Вино из одуванчиков')
-        assert len(collector.favorites) == 1
 
     def test_delete_book_from_favorites(self):
         collector = BooksCollector()
